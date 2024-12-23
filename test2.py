@@ -66,7 +66,7 @@ def save_persons_to_file(persons, filename="persons_detected.txt"):
 
 def analyze_faces_in_realtime():
     # Inicializa la cámara
-    vid = cv2.VideoCapture("rtsp://admin:Admin123.@192.168.1.100:554/profile2/media.smp")
+    vid = cv2.VideoCapture(0)
     vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
@@ -77,14 +77,21 @@ def analyze_faces_in_realtime():
     frame_queue = Queue(maxsize=1)
     result_queue = Queue(maxsize=1)
 
+    # Parámetros para procesar cada n-ésimo frame
+    frame_counter = 0
+    process_every_n_frames = 10
+
     def capture_frames():
+        nonlocal frame_counter
         while True:
             ret, frame = vid.read()
             if not ret:
                 print("No se pudo capturar el frame.")
                 break
-            if not frame_queue.full():
-                frame_queue.put(frame)
+            frame_counter += 1
+            if frame_counter % process_every_n_frames == 0:
+                if not frame_queue.full():
+                    frame_queue.put(frame)
 
     def process_frames():
         while True:

@@ -1,0 +1,5 @@
+ID: 8b4fddc4 | Género: Femenino | Edad: 8-12 | Tiempo: 2.9000 segundos
+ID: 18d21815 | Género: Desconocido | Edad: N/A | Tiempo: 4.8000 segundos
+ID: 33510c10 | Género: Masculino | Edad: 48-53 | Tiempo: 6.2000 segundos
+ID: b05f20f1 | Género: Masculino | Edad: 25-32 | Tiempo: 6.5000 segundos
+ID: 7b3099dd | Género: Femenino | Edad: 8-12 | Tiempo: 2.5000 segundos
