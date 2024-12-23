@@ -1,0 +1,27 @@
+Para el modelo original se necesitan estas librerías:
+mediapipe
+opencv-python
+numpy
+
+
+
+Conectarse a la camara por rtsp:
+
+rtsp://admin:Admin123.@192.168.1.100:554/profile2/media.smp
+
+
+
+Para el modelo nuevo (Deepface):
+tf-keras
+deepface
+
+Modelos nuevo:
+age_model_weights.h5
+gender_model_weights.h5
+
+
+
+Para usar GPU:
+
+python -m pip install --upgrade pip==23.2.1
+pip install tensorflow==2.12.0

@@ -5,18 +5,23 @@ import threading
 import math
 import uuid
 import numpy as np
+from deepface import DeepFace
 
 # Inicializar herramientas de MediaPipe
 mp_deteccion_rostros = mp.solutions.face_detection
 mp_dibujo = mp.solutions.drawing_utils
 
 # Configurar la detección facial con MediaPipe
-deteccion_rostros = mp_deteccion_rostros.FaceDetection(min_detection_confidence=0.7)
+deteccion_rostros = mp_deteccion_rostros.FaceDetection(min_detection_confidence=0.9)
 
 # Inicializar la cámara
+url_rtsp = "rtsp://admin:Admin123.@192.168.1.100:554/profile2/media.smp"  # URL RTSP de la cámara
+
+# En caso de usar la url:
+#captura_video = cv2.VideoCapture(url_rtsp)
+
+# Para utilizar la cámara del PC
 captura_video = cv2.VideoCapture(0)
-captura_video.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-captura_video.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # Variables para medir el tiempo
 personas_tiempo = {}
@@ -81,12 +86,35 @@ def limpiar_ids_inactivos(ids_activas, tiempo_inactivo=2):
         del ids_activas[id_activo]
 
 # Analizar género y edad utilizando los modelos de OpenCV
-def analizar_genero_y_edad(frame, bounding_box):
+def analizar_genero_y_edad_OG(frame, bounding_box):
     x, y, ancho, alto = bounding_box
     if x < 0 or y < 0 or x + ancho > frame.shape[1] or y + alto > frame.shape[0]:
         return "Desconocido", "N/A"
 
+    # Ajustar el ROI con margen
+    margen = 10
+    x = max(x - margen, 0)
+    y = max(y - margen, 0)
+    ancho = min(ancho + 2 * margen, frame.shape[1] - x)
+    alto = min(alto + 2 * margen, frame.shape[0] - y)
     rostro = frame[y:y + alto, x:x + ancho]
+
+    # Asegurar tamaño adecuado
+    if rostro.shape[0] > 0 and rostro.shape[1] > 0:
+        blob = cv2.dnn.blobFromImage(rostro, 1.0, (227, 227), (78.4263377603, 87.7689143744, 114.895847746), swapRB=False)
+
+        # Predicción de género
+        modelo_genero.setInput(blob)
+        pred_genero = modelo_genero.forward()
+        probabilidad_genero = pred_genero[0].max()
+        genero = GENEROS[pred_genero[0].argmax()] if probabilidad_genero > 0.6 else "Desconocido"
+
+        # Predicción de edad
+        modelo_edad.setInput(blob)
+        pred_edad = modelo_edad.forward()
+        edad_predicha = RANGOS_EDAD[pred_edad[0].argmax()]
+
+
 
     # Asegurar que el rostro tenga el tamaño y formato esperado
     if rostro.shape[0] == 0 or rostro.shape[1] == 0:
@@ -108,6 +136,35 @@ def analizar_genero_y_edad(frame, bounding_box):
         return genero, edad
     except Exception as e:
         print(f"Error en análisis de género y edad: {e}")
+        return "Desconocido", "N/A"
+
+def analizar_genero_y_edad(frame, bounding_box):
+    x, y, ancho, alto = bounding_box
+
+    # Validar límites del ROI (bounding box)
+    if x < 0 or y < 0 or x + ancho > frame.shape[1] or y + alto > frame.shape[0]:
+        print("ROI fuera de los límites del frame.")
+        return "Desconocido", "N/A"
+
+    # Recortar el rostro
+    rostro = frame[y:y + alto, x:x + ancho]
+
+    # Validar dimensiones del ROI
+    if rostro is None or rostro.shape[0] < 10 or rostro.shape[1] < 10:
+        print("ROI inválido o muy pequeño.")
+        return "Desconocido", "N/A"
+
+    # Convertir al formato RGB (DeepFace requiere imágenes en RGB)
+    rostro_rgb = cv2.cvtColor(rostro, cv2.COLOR_BGR2RGB)
+
+    try:
+        # Analizar género y edad
+        analisis = DeepFace.analyze(rostro_rgb, actions=['gender', 'age'], enforce_detection=True)
+        genero = analisis['gender']
+        edad = analisis['age']
+        return genero, str(int(edad))
+    except Exception as e:
+        print(f"Error en DeepFace: {e}")
         return "Desconocido", "N/A"
 
 try:
@@ -133,8 +190,17 @@ try:
             for deteccion in resultados.detections:
                 box = deteccion.location_data.relative_bounding_box
                 h, w, _ = frame.shape
-                x, y, ancho, alto = int(box.xmin * w), int(box.ymin * h), int(box.width * w), int(box.height * h)
+                # Ajusta el margen en píxeles (puedes probar diferentes valores)
+                margen = 20
+
+                # Calcula las nuevas coordenadas ampliadas
+                x = max(int(box.xmin * w) - margen, 0)
+                y = max(int(box.ymin * h) - margen, 0)
+                ancho = min(int(box.width * w) + margen * 2, w - x)
+                alto = min(int(box.height * h) + margen * 2, h - y)
+
                 bounding_box = (x, y, ancho, alto)
+
 
                 id_rostro = asignar_id_unico(bounding_box, ids_activas)
 

@@ -1,0 +1,5 @@
+ID: bffeb983, Edad: 33, Género: Man, Tiempo en pantalla: 61 segundos
+ID: fab9ae9d, Edad: 35, Género: Man, Tiempo en pantalla: 6 segundos
+ID: 9218071d, Edad: 41, Género: Man, Tiempo en pantalla: 2 segundos
+ID: 34f092dc, Edad: 33, Género: Man, Tiempo en pantalla: 15 segundos
+ID: da411c22, Edad: 34, Género: Man, Tiempo en pantalla: 2 segundos
