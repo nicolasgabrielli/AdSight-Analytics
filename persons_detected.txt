@@ -1,8 +1,0 @@
-ID: fb188ade, Edad: 35, Género: Man, Tiempo en pantalla: 398 segundos
-ID: afe8af1e, Edad: 36, Género: Man, Tiempo en pantalla: 149 segundos
-ID: d76e5ae6, Edad: 27, Género: Man, Tiempo en pantalla: 7 segundos
-ID: 35e4026a, Edad: 25, Género: Man, Tiempo en pantalla: 23 segundos
-ID: 55436f4b, Edad: 30, Género: Man, Tiempo en pantalla: 2 segundos
-ID: 2242124e, Edad: 25, Género: Man, Tiempo en pantalla: 2 segundos
-ID: 10b142ed, Edad: 34, Género: Man, Tiempo en pantalla: 15 segundos
-ID: 28600015, Edad: 30, Género: Man, Tiempo en pantalla: 1 segundos

@@ -23,5 +23,5 @@ gender_model_weights.h5
 
 Para usar GPU:
 
-python -m pip install --upgrade pip==23.2.1
 pip install tensorflow==2.12.0
+pip install deepface
